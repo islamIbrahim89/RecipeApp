@@ -47,7 +47,7 @@ class RecipeListViewModelTests: XCTestCase {
 
         let expectation = XCTestExpectation(description: "Wait for errorMessage to be updated")
 
-        let cancellable = viewModel.$errorMessage
+        let cancellable = viewModel.$emptyMessage
             .dropFirst() // Skip initial nil state
             .sink { errorMessage in
                 if errorMessage == "No Recipes Found." {
@@ -60,7 +60,7 @@ class RecipeListViewModelTests: XCTestCase {
         await fulfillment(of: [expectation], timeout: 2.0) // Wait for async update
 
         XCTAssertEqual(viewModel.recipes.count, 0)
-        XCTAssertEqual(viewModel.errorMessage, "No Recipes Found.")
+        XCTAssertEqual(viewModel.emptyMessage, "No Recipes Found.")
         XCTAssertFalse(viewModel.hasMoreData)
 
         cancellable.cancel()
@@ -96,7 +96,7 @@ class RecipeListViewModelTests: XCTestCase {
         await viewModel.searchRecipes()
 
         XCTAssertEqual(viewModel.recipes.count, 0)
-        XCTAssertEqual(viewModel.errorMessage, "No Recipes Found.")
+        XCTAssertEqual(viewModel.emptyMessage, "No Recipes Found.")
     }
     
     func testSearchRecipes_Failure() async {

@@ -14,6 +14,7 @@ class RecipeListViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var hasMoreData: Bool = true
     @Published var errorMessage: String? = nil
+    @Published var emptyMessage: String? = nil
     
     private let service: RecipeServiceProtocol
     private var limit = 10
@@ -49,16 +50,17 @@ class RecipeListViewModel: ObservableObject {
         if reset {
             resetPagination()
         }
-        guard !isLoading && hasMoreData && hasMoreData  else { return }
+        guard !isLoading && hasMoreData  else { return }
         
         isLoading = true
         errorMessage = nil
+        emptyMessage = nil
         
         do {
             let newRecipeResponse = try await service.fetchRecipes(limit: limit, skip: skip)
             hasMoreData = (skip + limit) < newRecipeResponse.total
             if newRecipeResponse.recipes.isEmpty {
-                errorMessage = "No Recipes Found."
+                emptyMessage = "No Recipes Found."
             } else {
                 recipes.append(contentsOf: newRecipeResponse.recipes)
                 skip += limit
@@ -78,11 +80,12 @@ class RecipeListViewModel: ObservableObject {
         isLoading = true
         hasMoreData = false
         errorMessage = nil
+        emptyMessage = nil
         
         do {
             let response = try await service.searchRecipes(query: searchText)
             if response.recipes.isEmpty {
-                errorMessage = "No Recipes Found."
+                emptyMessage = "No Recipes Found."
             }
             recipes = response.recipes
         } catch let error as RecipeServiceError {
